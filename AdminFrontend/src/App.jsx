@@ -7,7 +7,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin" replace />} />
+        <Route path="/" element={<Navigate to="/user" replace />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/user" element={<UserPage />} />
         <Route path="/form/:id" element={<FormPage/>} />

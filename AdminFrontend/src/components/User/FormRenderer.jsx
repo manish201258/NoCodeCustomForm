@@ -17,7 +17,13 @@ export default function FormRenderer({ formId, readOnly = false }) {
         setForm(f);
         const init = {};
         (f.fields || []).forEach((fld) => {
-          init[fld.id] = fld.type === "checkbox" ? false : "";
+          if (fld.type === "checkbox" && fld.options?.length > 0) {
+            init[fld.id] = [];
+          } else if (fld.type === "checkbox") {
+            init[fld.id] = false;
+          } else {
+            init[fld.id] = "";
+          }
         });
         setAnswers(init);
       })
@@ -63,7 +69,13 @@ export default function FormRenderer({ formId, readOnly = false }) {
       setMessage({ type: 'success', text: '✓ Response submitted successfully!' });
       const cleared = {};
       (form.fields || []).forEach((fld) => {
-        cleared[fld.id] = fld.type === 'checkbox' ? false : '';
+        if (fld.type === 'checkbox' && fld.options?.length > 0) {
+          cleared[fld.id] = [];
+        } else if (fld.type === 'checkbox') {
+          cleared[fld.id] = false;
+        } else {
+          cleared[fld.id] = '';
+        }
       });
       setAnswers(cleared);
     } catch (err) {
@@ -86,10 +98,18 @@ export default function FormRenderer({ formId, readOnly = false }) {
         <form onSubmit={(e) => { e.preventDefault(); submit(); }}>
           {(form.fields || []).map((field) => (
             <div key={field.id}>
-              <label className="form-label">
-                {field.label}
-                {field.required && <span className="form-required">*</span>}
-              </label>
+              {field.type !== 'checkbox' && (
+                <label className="form-label">
+                  {field.label}
+                  {field.required && <span className="form-required">*</span>}
+                </label>
+              )}
+              {field.type === 'checkbox' && (
+                <div className="form-label">
+                  {field.label}
+                  {field.required && <span className="form-required">*</span>}
+                </div>
+              )}
 
               {(field.type === 'text' || field.type === 'email' || field.type === 'tel') && (
                 <input
@@ -126,7 +146,7 @@ export default function FormRenderer({ formId, readOnly = false }) {
                 </select>
               )}
 
-              {field.type === 'checkbox' && (
+              {field.type === 'checkbox' && !field.options?.length && (
                 <div className="form-checkbox-row">
                   <input
                     id={field.id}
@@ -136,9 +156,32 @@ export default function FormRenderer({ formId, readOnly = false }) {
                     onChange={(e) => handleChange(field.id, e.target.checked)}
                     disabled={readOnly}
                   />
-                  <label htmlFor={field.id} style={{ margin: 0, fontWeight: 500 }} className="form-label">
+                  <label htmlFor={field.id} className="form-checkbox-label">
                     {field.label}
                   </label>
+                </div>
+              )}
+
+              {field.type === 'checkbox' && field.options?.length > 0 && (
+                <div className="form-checkbox-group">
+                  {(field.options || []).map((opt, i) => (
+                    <label key={i} className="form-checkbox-label">
+                      <input
+                        type="checkbox"
+                        value={opt}
+                        checked={(answers[field.id] || []).includes(opt)}
+                        onChange={(e) => {
+                          const current = answers[field.id] || [];
+                          const updated = e.target.checked
+                            ? [...current, opt]
+                            : current.filter(item => item !== opt);
+                          handleChange(field.id, updated);
+                        }}
+                        disabled={readOnly}
+                      />
+                      {opt}
+                    </label>
+                  ))}
                 </div>
               )}
 

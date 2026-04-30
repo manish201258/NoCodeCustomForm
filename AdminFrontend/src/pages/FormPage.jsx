@@ -21,7 +21,7 @@ export default function FormPage() {
 
         {/* Back Button */}
         <div className="mb-4 text-right">
-          <Link to="/" className="text-sm text-blue-600 hover:underline">Back</Link>
+          <Link to="/user" className="text-sm text-blue-600 hover:underline">Back</Link>
         </div>
 
         {/* Form Content */}
